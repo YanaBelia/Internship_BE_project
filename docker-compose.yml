@@ -2,7 +2,36 @@ version: '3.8'
 services:
   app:
     build: .
+    container_name: fastapi_app
     command: uvicorn app.main:app --host 0.0.0.0
+    volumes:
+        - './app'
+
     ports:
       - "8000:8000"
+    depends_on:
+      - pgdb
+      - redis
+  pgdb:
+    image: postgres:15.0-alpine
+    container_name: pgdb
+    volumes:
+      - ./pg_db/:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
 
+  redis:
+    image: 'redis:latest'
+    container_name: redis
+    volumes:
+      - ./redis_db/:/var/lib/redis/data/
+    environment:
+      - REDIS_HOST=local:redis:6380
+
+    ports:
+      - "6380:6380"
+volumes:
+  pg_db:
+  redis_db:
