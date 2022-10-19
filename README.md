@@ -1,5 +1,5 @@
-Terminal:uvicorn main:app --reload
-docker-compose up --build
-alembic revision --autogenerate -m "<title>"
+Terminal:uvicorn main:app --reload <br />
+docker-compose up --build <br />
+alembic revision --autogenerate -m "<title>" <br />
 alembic upgrade head
   
