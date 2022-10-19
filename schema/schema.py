@@ -13,6 +13,7 @@ class User_Register(UserBase):
 
 class User_Sign_in(UserBase):
     first_name: str
+    password: str
 
 class User_Update(UserBase):
     password: str
