@@ -8,3 +8,8 @@ typing_extensions==4.4.0
 uvicorn==0.18.3
 redis
 
+databases~=0.6.1
+aioredis~=2.0.1
+python-dotenv~=0.21.0
+SQLAlchemy~=1.4.41
+alembic~=1.8.1

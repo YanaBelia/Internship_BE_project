@@ -2,3 +2,4 @@
 /.idea/
 /venv/
 /.env
+__init__.py
