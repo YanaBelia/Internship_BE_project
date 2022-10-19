@@ -3,3 +3,7 @@
 /venv/
 /.env
 __init__.py
+/migrations/__pycache__
+/version/__pycache__
+/core/__pycache__
+/user/__pycache__
