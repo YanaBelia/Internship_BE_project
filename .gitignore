@@ -1,4 +1,10 @@
+__init__.py
 /__pycache__/
 /.idea/
 /venv/
 /.env
+app/__pycache__/
+app/models/__pycache__/
+app/my_data/__pycache__/
+migrations/__pycache__/
+
