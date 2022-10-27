@@ -1,7 +1,11 @@
 import os
-import aioredis
+# from urllib.request import Request
+
+from databases import Database
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from starlette.routing import Mount
+
 from app.my_data.database import SQLALCHEMY_DATABASE_URL, engine
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,6 +13,8 @@ from app.models import models
 
 from app.router.routes import router
 import databases
+
+
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -34,14 +40,20 @@ app.add_middleware(
 #     return {"status": "Working"}
 
 
+def inject_db(app: FastAPI, db: Database):
+    app.state.database = db
+    for route in app.router.routes:
+        if isinstance(route, Mount):
+            route.app.state.database = db
+
+
 @app.on_event("startup")
 async def startup():
-     await db.connect()
-     #app.state.redis = await aioredis.from_url(REDIS_URL)
+    await db.connect()
+    inject_db(app, db)
 
 
 @app.on_event("shutdown")
 async def shutdown():
     await db.disconnect()
-    #await app.state.redis.close()
-
+    # await app.state.redis.close()
