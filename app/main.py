@@ -10,6 +10,7 @@ from app.my_data.database import SQLALCHEMY_DATABASE_URL, engine
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.models import models
+from app.router.auth import router1
 
 from app.router.routes import router
 import databases
@@ -23,6 +24,7 @@ load_dotenv(dotenv_path=f"{basedir}/.env")
 
 db = databases.Database(SQLALCHEMY_DATABASE_URL)
 app.include_router(router, prefix="/user", tags=["user"])
+app.include_router(router1, prefix="/auth", tags=["auth"])
 
 app.add_middleware(
     CORSMiddleware,

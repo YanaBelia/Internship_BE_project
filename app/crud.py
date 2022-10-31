@@ -1,7 +1,4 @@
-from databases import Database
-from fastapi import Depends
-from starlette.requests import Request
-
+import passlib.hash as _hash
 from app.models.models import User
 from app.schemas import schema as schema
 from sqlalchemy.orm import Session, query
@@ -21,7 +18,7 @@ async def get_user_by_id(db: Session, user_id: int) -> query:
 
 
 async def create_user(db: Session, user: schema.UserSchema) -> User:
-    _user = User(password=user.password, first_name=user.first_name, last_name=user.last_name, email=user.email)
+    _user = User(password=_hash.bcrypt.hash(user.password), first_name=user.first_name, last_name=user.last_name, email=user.email)
     db.add(_user)
     db.commit()
     db.refresh(_user)

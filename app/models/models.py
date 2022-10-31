@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, Integer, DateTime, Boolean
 from app.my_data.database import Base
 from sqlalchemy.ext.declarative import declarative_base
+import passlib.hash as _hash
 
 
 class User(Base):
@@ -13,3 +14,6 @@ class User(Base):
     password = Column(String)
     date = Column(DateTime)
     is_active = Column(Boolean, default=False)
+
+    def verify_password(self, password: str):
+        return _hash.bcrypt.verify(password, self.password)
