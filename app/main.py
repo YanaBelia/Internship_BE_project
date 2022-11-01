@@ -16,8 +16,11 @@ from app.router.routes import router
 import databases
 
 
+async def init_models():
+    async with engine.begin() as con:
+        await con.run_sync(models.Base.metadata.drop_all)
+        await con.run_sync(models.Base.metadata.create_all)
 
-models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 basedir = os.path.abspath(os.path.dirname("../"))
 load_dotenv(dotenv_path=f"{basedir}/.env")

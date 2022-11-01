@@ -7,18 +7,6 @@ from pydantic.generics import GenericModel
 T = TypeVar('T')
 
 
-# class TokenBase(BaseModel):
-#     token: UUID4 = Field(..., alias="access_token")
-#     expires: datetime
-#     token_type: Optional[str] = "bearer"
-#
-#     class Config:
-#         allow_population_by_field_name = True
-#
-#     @validator("token")
-#     def hexlify_token(cls, value):
-#         return value.hex
-#
 
 class UserSchema(BaseModel):
     id: Optional[int] = None
@@ -30,9 +18,6 @@ class UserSchema(BaseModel):
     class Config:
         orm_mode = True
 
-
-# class User(UserSchema):
-#     token: TokenBase = {}
 
 
 class Request(GenericModel, Generic[T]):
