@@ -1,5 +1,0 @@
-[AUTH0]
-DOMAIN = dev-tqhpr2dufhvyfkj7.us.auth0.com
-API_AUDIENCE = https://fastapi-internsip-project.com
-ALGORITHMS = RS256
-ISSUER = https://dev-tqhpr2dufhvyfkj7.us.auth0.com/
