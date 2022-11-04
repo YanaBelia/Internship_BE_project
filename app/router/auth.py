@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.services import sign_in, create_token, get_current_user_email, get_current_auth_email
 from app.my_data.database import get_db
 from fastapi.security import HTTPBearer
-
+from app.token.config import ALGORITHMS, JWT_ALGORITHM
 
 token_auth_scheme = HTTPBearer()
 router1 = APIRouter()
@@ -26,9 +26,9 @@ async def get_user_or_auth(db: AsyncSession = Depends(get_db),
                            ):
     credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                          detail="token is not correct")
-    if jwt.get_unverified_header(token.credentials)['alg'] == 'RS256':
+    if jwt.get_unverified_header(token.credentials)['alg'] == ALGORITHMS:
         return await get_current_auth_email(db=db, token=token)
-    elif jwt.get_unverified_header(token.credentials)['alg'] == 'HS256':
+    elif jwt.get_unverified_header(token.credentials)['alg'] == JWT_ALGORITHM:
         return await get_current_user_email(token=token)
     else:
         return credential_exception
