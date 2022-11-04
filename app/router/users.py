@@ -3,7 +3,6 @@ from databases import Database
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.models import User
-# from fastapi.encoders import jsonable_encoder
 from app.schemas.schema import RequestUser, Response, UserSchema
 
 from app import crud

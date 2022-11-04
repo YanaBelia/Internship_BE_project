@@ -12,3 +12,6 @@ app/router/__pycache__/routes.cpython-310.pyc
 app/token/.env
 app/schemas/__pycache__/
 app/auth/__pycache__/
+app/token/.config
+app/token/__pycache__/config.cpython-310.pyc
+app/token/config.py

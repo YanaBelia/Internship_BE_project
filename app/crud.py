@@ -40,3 +40,10 @@ class UserCrud:
         await self.db.commit()
         await self.db.refresh(_user)
         return _user
+
+    async def create_user_by_email(self, email:str) -> User:
+        _user = User(email=email)
+        self.db.add(_user)
+        await self.db.commit()
+        await self.db.refresh(_user)
+        return _user

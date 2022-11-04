@@ -1,6 +1,4 @@
 import os
-# from urllib.request import Request
-
 from databases import Database
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -12,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.models import models
 from app.router.auth import router1
 
-from app.router.routes import router
+from app.router.users import router
 import databases
 
 
@@ -40,11 +38,6 @@ app.add_middleware(
 )
 
 
-# @app.get("/")
-# async def root():
-#     return {"status": "Working"}
-
-
 def inject_db(app: FastAPI, db: Database):
     app.state.database = db
     for route in app.router.routes:
@@ -61,4 +54,4 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     await db.disconnect()
-    # await app.state.redis.close()
+

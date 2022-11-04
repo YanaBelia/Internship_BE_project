@@ -1,15 +1,11 @@
+import jwt
 from fastapi import Depends, HTTPException, APIRouter, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
-
-from app.auth.services import sign_in, create_token, get_current_user
-from app import crud
+from app.auth.services import sign_in, create_token, get_current_user_email, get_current_auth_email
 from app.my_data.database import get_db
-from app.schemas.schema import UserSchema, RequestUser
 from fastapi.security import HTTPBearer
-from app.models.models import User
-from app.token.utils import VerifyToken
+
 
 token_auth_scheme = HTTPBearer()
 router1 = APIRouter()
@@ -24,16 +20,15 @@ async def generate_token(form_data: OAuth2PasswordRequestForm = Depends(),
     return await create_token(user)
 
 
-@router1.get("/me")  # don't work
-async def private(response: Response,
-                  token: str = Depends(token_auth_scheme),
-                  db: AsyncSession = Depends(get_db)) -> User:
-    result = VerifyToken(token.credentials).verify()
-
-    if result.get("status"):
-        response.status_code = status.HTTP_400_BAD_REQUEST
-        return result
-
-    user_id = result.get("id")
-    user = await crud.UserCrud(db).get_user_by_id(user_id=user_id)
-    return user
+@router1.get("/get_email_by_token")
+async def get_user_or_auth(db: AsyncSession = Depends(get_db),
+                           token: str = Depends(token_auth_scheme),
+                           ):
+    credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                         detail="token is not correct")
+    if jwt.get_unverified_header(token.credentials)['alg'] == 'RS256':
+        return await get_current_auth_email(db=db, token=token)
+    elif jwt.get_unverified_header(token.credentials)['alg'] == 'HS256':
+        return await get_current_user_email(token=token)
+    else:
+        return credential_exception

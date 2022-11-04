@@ -1,22 +1,21 @@
 import os
 import jwt
-from configparser import ConfigParser
-
+from fastapi import HTTPException
+from app.token.config import JWT_ALGORITHM, JWT_SECRET, DOMAIN, API_AUDIENCE, ISSUER, ALGORITHMS, CLIENT_SECRET, CLIENT_ID
 
 def set_up():
-    env = os.getenv("ENV", "app/token/.env")
 
-    if env == "app/token/.env":
-        config = ConfigParser()
-        config.read("app/token/.env")
-        config = config["AUTH0"]
-    else:
-        config = {
-            "DOMAIN": os.getenv("DOMAIN", "dev-tqhpr2dufhvyfkj7.us.auth0.com"),
-            "API_AUDIENCE": os.getenv("API_AUDIENCE", "https://fastapi-internsip-project.com"),
-            "ISSUER": os.getenv("ISSUER", "https://dev-tqhpr2dufhvyfkj7.us.auth0.com/"),
-            "ALGORITHMS": os.getenv("ALGORITHMS", "RS256"),
-        }
+    config = {
+    "DOMAIN": os.getenv("DOMAIN", DOMAIN),
+    "API_AUDIENCE": os.getenv("API_AUDIENCE", API_AUDIENCE),
+    "ISSUER": os.getenv("ISSUER", ISSUER),
+    "ALGORITHMS": os.getenv("ALGORITHMS", ALGORITHMS),
+    "CLIENT_ID": os.getenv("CLIENT_ID", CLIENT_ID),
+    "CLIENT_SECRET": os.getenv("CLIENT_SECRET", CLIENT_SECRET),
+
+    "JWT_ALGORITHM": os.getenv("MY_ALGORITHMS", JWT_ALGORITHM),
+    "JWT_SECRET": os.getenv("SECRET", JWT_SECRET),
+    }
     return config
 
 
@@ -37,10 +36,10 @@ class VerifyToken():
             self.signing_key = self.jwks_client.get_signing_key_from_jwt(
                 self.token
             ).key
-        except jwt.exceptions.PyJWKClientError as error:
-            return {"status": "error", "msg": error.__str__()}
-        except jwt.exceptions.DecodeError as error:
-            return {"status": "error", "msg": error.__str__()}
+        except jwt.exceptions.PyJWKClientError:
+            raise HTTPException(status_code=400, detail="error auth0 jwt")
+        except jwt.exceptions.DecodeError:
+            raise HTTPException(status_code=400, detail="error decode auth0 jwt")
 
         try:
             payload = jwt.decode(
@@ -50,8 +49,8 @@ class VerifyToken():
                 audience=self.config["API_AUDIENCE"],
                 issuer=self.config["ISSUER"],
             )
-        except Exception as e:
-            return {"status": "error", "message": str(e)}
+        except Exception:
+            raise HTTPException(status_code=400, detail="error auth0 jwt")
 
         if self.scopes:
             result = self._check_claims(payload, 'scope', str, self.scopes.split(' '))
@@ -90,7 +89,17 @@ class VerifyToken():
 
                 result["code"] = f"insufficient_{claim_name}"
                 result["msg"] = (f"Insufficient {claim_name} ({value}). You don't have "
-                                  "access to this resource")
+                                 "access to this resource")
                 return result
         return result
 
+    def verify_my(self):
+        try:
+            payload = jwt.decode(
+                self.token,
+                JWT_SECRET,
+                algorithms=JWT_ALGORITHM,
+            )
+        except Exception as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        return payload

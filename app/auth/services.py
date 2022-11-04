@@ -1,18 +1,18 @@
+from jose import JWTError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
+from app import crud
 from app.models.models import User
 from app.schemas import schema as schema
 import jwt
 import fastapi.security as security
-from fastapi import Depends, HTTPException
-from app.my_data.database import get_db
+from fastapi import HTTPException
 from fastapi.security import HTTPBearer
+from app.token.config import JWT_SECRET, JWT_ALGORITHM
+from app.token.utils import VerifyToken
 
 token_auth_scheme = HTTPBearer()
-
-
-JWT_SECRET = "myjwtsecret"
-JWT_ALGORITHM = "RS256"
 
 
 oauth2schema = security.OAuth2PasswordBearer(tokenUrl="/auth/signin")
@@ -32,15 +32,41 @@ async def sign_in(db: AsyncSession, email: str, password: str) -> User:
     return _user
 
 
-async def create_token(user: User) -> dict:
-    obj = schema.UserSchema.from_orm(user)
+async def create_token(email: str) -> dict:
+    obj = schema.UserSchema.from_orm(email)
     token = jwt.encode(obj.dict(), JWT_SECRET)
     return dict(access_token=token, token_type="bearer")
 
 
-async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depends(token_auth_scheme)) -> User:
-    payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM], verify_signature=False)
-    user = await db.execute(select(User).get(payload["id"]))
-    return user
+async def get_current_user_email(token: str):
+    credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                         detail="Invalid data")
+    try:
+        payload = VerifyToken(token.credentials).verify_my()
+        user_email: str = payload.get("email")
+        if user_email is None:
+            raise credential_exception
+    except JWTError:
+        raise credential_exception
+    return user_email
+
+
+async def get_current_auth_email(db: AsyncSession, token: str):
+    credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                         detail="Invalid data")
+    auth0_email = "https://example.com/email"
+
+    try:
+        pyload = VerifyToken(token.credentials).verify()
+        if pyload is None:
+            raise credential_exception
+    except JWTError:
+        raise credential_exception
+    user = await get_user_by_email(db=db, email=pyload.get(auth0_email))
+    if user is None:
+        await crud.UserCrud(db).create_user_by_email(email=pyload.get(auth0_email))
+
+    return pyload.get(auth0_email)
+
 
 
