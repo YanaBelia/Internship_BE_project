@@ -7,7 +7,6 @@ from pydantic.generics import GenericModel
 T = TypeVar('T')
 
 
-
 class UserSchema(BaseModel):
     id: Optional[int] = None
     password: Optional[str] = None
@@ -19,6 +18,21 @@ class UserSchema(BaseModel):
         orm_mode = True
 
 
+class UpdateUser(BaseModel):
+    id: Optional[int] = None
+    password: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class UserId(BaseModel):
+    id: Optional[int] = None
+
+    class Config:
+        orm_mode = True
 
 class Request(GenericModel, Generic[T]):
     parameter: Optional[T] = Field(...)
@@ -26,6 +40,12 @@ class Request(GenericModel, Generic[T]):
 
 class RequestUser(BaseModel):
     parameter: UserSchema = Field(...)
+
+class RequestUserId(BaseModel):
+    parameter: UserId = Field(...)
+
+class RequestUpdateUser(BaseModel):
+    parameter: UpdateUser = Field(...)
 
 
 class Response(GenericModel, Generic[T]):

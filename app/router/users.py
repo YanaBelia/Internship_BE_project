@@ -3,7 +3,7 @@ from databases import Database
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.models import User
-from app.schemas.schema import RequestUser, Response, UserSchema
+from app.schemas.schema import RequestUser, Response, UserSchema, RequestUpdateUser
 
 from app import crud
 from app.my_data.database import get_db
@@ -22,8 +22,8 @@ async def create_user(request: RequestUser,
 
 @router.get("/", response_model=List[UserSchema], status_code=201)
 async def get_users(skip: int = 0, limit: int = 100,
-                    data: AsyncSession = Depends(get_db)) -> User:
-    _user = await crud.UserCrud(data).get_user(skip, limit)
+                    data: AsyncSession = Depends(get_db)) -> List[User]:
+    _user = await crud.UserCrud(data).get_users(skip, limit)
     if not _user:
         raise HTTPException(status_code=404, detail="Users are not found")
     return _user
@@ -38,7 +38,7 @@ async def get_by_id(id: int, data: AsyncSession = Depends(get_db)) -> User:
 
 
 @router.patch("/update", response_model=UserSchema, status_code=201)
-async def update_user(request: RequestUser,
+async def update_user(request: RequestUpdateUser,
                       data: AsyncSession = Depends(get_db)) -> User:
     _user = await crud.UserCrud(data).update_user(user_id=request.parameter.id,
                                                   password=request.parameter.password,
