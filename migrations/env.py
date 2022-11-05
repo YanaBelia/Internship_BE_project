@@ -1,9 +1,9 @@
 import sys
 from logging.config import fileConfig
-from core.db import Base, SQLALCHEMY_DATABASE_URL
+from app.my_data.database import SQLALCHEMY_DATABASE_URL
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from core.base import Base
+from app.my_data.database import Base
 from alembic import context
 
 sys.path = ['', '..'] + sys.path[1:]

@@ -1,4 +1,17 @@
+__init__.py
 /__pycache__/
 /.idea/
 /venv/
 /.env
+app/__pycache__/
+app/models/__pycache__/
+app/my_data/__pycache__/
+migrations/__pycache__/
+app/router/__pycache__/
+app/router/__pycache__/routes.cpython-310.pyc
+app/token/.env
+app/schemas/__pycache__/
+app/auth/__pycache__/
+app/token/.config
+app/token/__pycache__/config.cpython-310.pyc
+app/token/config.py
