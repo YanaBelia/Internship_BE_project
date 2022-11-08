@@ -14,6 +14,8 @@ from app.token.utils import VerifyToken
 from app.token.config import password, first_name, last_name
 
 
+
+
 class AuthService:
     token_auth_scheme = HTTPBearer()
 
@@ -68,3 +70,6 @@ class AuthService:
                                                               first_name=first_name, last_name=last_name)
 
         return pyload.get(auth0_email)
+
+
+

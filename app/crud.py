@@ -20,7 +20,6 @@ class UserCrud:
         user = await self.db.execute(select(User).filter(User.id == user_id))
         return user.scalars().first()
 
-
     async def create_user(self, user: schema.UserSchema) -> User:
         _user = User(password=_hash.bcrypt.hash(user.password), first_name=user.first_name, last_name=user.last_name,
                      email=user.email)
@@ -29,25 +28,27 @@ class UserCrud:
         await self.db.refresh(_user)
         return _user
 
-    async def remove_user(self, user_id: int):
-        _user = await self.get_user_by_id(user_id=user_id)
+    async def remove_user(self, user_email):
+        _user = await self.get_user_by_email(user_email=user_email)
         await self.db.delete(_user)
         await self.db.commit()
 
-
-    async def update_user(self, user_id: int, password: str, first_name: str, last_name: str) -> User:
-        _user = await self.get_user_by_id(user_id=user_id)
+    async def update_user(self, user_email, password: str, first_name: str) -> User:
+        _user = await self.get_user_by_email(user_email=user_email)
         _user.password = password
         _user.first_name = first_name
-        _user.last_name = last_name
         await self.db.commit()
         await self.db.refresh(_user)
         return _user
 
-    async def create_user_by_email(self, email:str, password:str, first_name:str, last_name:str) -> User:
+    async def create_user_by_email(self, email: str, password: str, first_name: str, last_name: str) -> User:
         _user = User(email=email, password=_hash.bcrypt.hash(password),
                      first_name=first_name, last_name=last_name)
         self.db.add(_user)
         await self.db.commit()
         await self.db.refresh(_user)
         return _user
+
+    async def get_user_by_email(self, user_email: str) -> User:
+        user = await self.db.execute(select(User).filter(User.email == user_email))
+        return user.scalars().first()
