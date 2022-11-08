@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import services
 from app.my_data.database import get_db
 from fastapi.security import HTTPBearer
+
 from app.token.config import ALGORITHMS, JWT_ALGORITHM
 
 token_auth_scheme = HTTPBearer()
@@ -32,3 +33,5 @@ async def get_user_or_auth(db: AsyncSession = Depends(get_db),
         return await services.AuthService.get_current_user_email(token=token)
     else:
         return credential_exception
+
+
